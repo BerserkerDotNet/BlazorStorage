@@ -3,7 +3,7 @@
 Simple and reliable version of Local and Session storage for Blazor.
 This package is written purely in C# and does not require any JS resource to be loaded in the blazor app.
 
-[![Build Status](https://berserkerdotnet.visualstudio.com/BlazorState.Redux/_apis/build/status/BerserkerDotNet.BlazorState.Redux?branchName=master)](https://berserkerdotnet.visualstudio.com/BlazorState.Redux/_build/latest?definitionId=8&branchName=master)
+[![Build Status](https://berserkerdotnet.visualstudio.com/GitHubProjects/_apis/build/status/BerserkerDotNet.BlazorStorage?branchName=master)](https://berserkerdotnet.visualstudio.com/GitHubProjects/_build/latest?definitionId=14&branchName=master)
 
 [![Nuget](https://buildstats.info/nuget/BlazorStorage?v=1.0.0)](https://www.nuget.org/packages/BlazorStorage)
 
