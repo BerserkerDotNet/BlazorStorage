@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Json;
+using System.Threading.Tasks;
 using BlazorStorage.Interfaces;
 using Microsoft.JSInterop;
 
@@ -20,9 +21,15 @@ namespace BlazorStorage.Services
             return _jsRuntime.InvokeVoidAsync($"{_storageType}.clear");
         }
 
-        public ValueTask<T> GetItem<T>(string key)
+        public async ValueTask<T> GetItem<T>(string key)
         {
-            return _jsRuntime.InvokeAsync<T>($"{_storageType}.getItem", key);
+            var jsonValue = await _jsRuntime.InvokeAsync<string>($"{_storageType}.getItem", key);
+            if (string.IsNullOrEmpty(jsonValue))
+            {
+                return default;
+            }
+
+            return JsonSerializer.Deserialize<T>(jsonValue);
         }
 
         public ValueTask<string> Key(int index)
@@ -37,7 +44,8 @@ namespace BlazorStorage.Services
 
         public ValueTask SetItem<T>(string key, T value)
         {
-            return _jsRuntime.InvokeVoidAsync($"{_storageType}.setItem", key, value);
+            var jsonValue = JsonSerializer.Serialize(value);
+            return _jsRuntime.InvokeVoidAsync($"{_storageType}.setItem", key, jsonValue);
         }
     }
 }

@@ -1,0 +1,105 @@
+﻿@page "/storage"
+@inject ILocalStorage LocalStorage
+@inject ISessionStorage SessionStorage
+
+<h3>Storage usage</h3>
+
+<div class="form-group">
+    <label for="storageType">Storage Type</label>
+    <select id="storageType" class="form-control" @bind="StorageType">
+        <option value="local">Local</option>
+        <option value="session">Session</option>
+    </select>
+</div>
+
+<form @onsubmit:preventDefault @onsubmit:stopPropagation>
+    <div class="form-group">
+        <label for="userName">First Name</label>
+        <input class="form-control" id="userName" @bind-value="User.FirstName" />
+    </div>
+    <div class="form-group">
+        <label for="userLastName">Last Name</label>
+        <input class="form-control" id="userLastName" @bind-value="User.LastName" />
+    </div>
+    <div class="form-group">
+        <label for="age">Age</label>
+        <input class="form-control" id="age" @bind-value="Age" />
+    </div>
+
+    <button class="btn btn-primary" @onclick="SetLocalStorageState" @onclick:preventDefault @onclick:stopPropagation>Set</button>
+    <button class="btn btn-success" @onclick="GetLocalStorageState" @onclick:preventDefault @onclick:stopPropagation>Get</button>
+    <button class="btn btn-danger" @onclick="RemoveLocalStorageState" @onclick:preventDefault @onclick:stopPropagation>Clear</button>
+    <button class="btn btn-warning" @onclick="LoadKeys" @onclick:preventDefault @onclick:stopPropagation>Load Keys</button>
+    <ul>
+        @foreach (var key in Keys)
+        {
+            <li>@key</li>
+        }
+    </ul>
+</form>
+
+@code
+{
+    private const string UserKey = "user";
+    private const string AgeKey = "age";
+    private string storageType = "local";
+
+    public User User { get; set; } = new User();
+    public string StorageType
+    {
+        get { return storageType; }
+        set { storageType = value; Reload(); }
+    }
+
+    public int Age { get; set; }
+
+    public IEnumerable<string> Keys { get; set; } = new string[0];
+
+    private IStorage StorageService => storageType == "local" ? (IStorage)LocalStorage : (IStorage)SessionStorage;
+
+    private async Task SetLocalStorageState(MouseEventArgs args)
+    {
+        await StorageService.SetItem(UserKey, User);
+        await StorageService.SetItem(AgeKey, Age);
+    }
+
+    private async Task GetLocalStorageState(MouseEventArgs args)
+    {
+        var user = await StorageService.GetItem<User>(UserKey);
+        Age = await StorageService.GetItem<int>(AgeKey);
+        User = user ?? new User();
+    }
+
+    private async Task RemoveLocalStorageState(MouseEventArgs args)
+    {
+        await StorageService.Clear();
+        User = new User();
+        Age = 0;
+    }
+
+    private async Task LoadKeys(MouseEventArgs args)
+    {
+        var result = new List<string>();
+        int index = 0;
+        while (true)
+        {
+            var keyName = await StorageService.Key(index);
+            Console.WriteLine("Key" + keyName);
+            index++;
+            if (string.IsNullOrEmpty(keyName))
+            {
+                break;
+            }
+
+            result.Add(keyName);
+        }
+
+        Keys = result;
+    }
+
+    private void Reload()
+    {
+        User = new User();
+        Age = 0;
+    }
+}
